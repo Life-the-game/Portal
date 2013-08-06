@@ -139,6 +139,39 @@ let icon icon =
     ()
 
 (* ************************************************************************** *)
+(* This code has been copy-pasted from the Website repo (grid.eliom)          *)
+(* ************************************************************************** *)
+
+let row ?(a = []) content =
+  div ~a:(a @ [a_class ["row-fluid"]]) content
+
+let spann ?(elt = div) ?(a = []) nb content =
+  if nb < 1 || nb > 12
+  then raise (Invalid_argument "integer 1-12")
+  else elt ~a:(a @ [a_class [("span" ^ string_of_int nb)]]) content
+
+let maker ?(a = []) per_line elements =
+
+  let elements =
+    let rec aux padding elements =
+      if padding > 0
+      then aux (padding - 1) (elements @ [[]])
+      else elements in
+    aux ((List.length elements) mod per_line) elements in
+
+  let aux elt (n, l) =
+    match l with
+    | [] -> (1, [[elt]])
+    | (h::t) as l -> if (n == per_line)
+      then (1, [elt]::l)
+      else (n + 1, ((elt::h)::t)) in
+  let (_, l) = List.fold_right aux elements (0, []) in
+
+  let make_span elt = spann (12 / per_line) elt in
+  let make_row l = row (List.map make_span l) in
+  div ~a:(a @ [a_class ["grid"]]) (List.map make_row l)
+
+(* ************************************************************************** *)
 (* Set GitHub Login/Password                                                  *)
 (* ************************************************************************** *)
 
@@ -241,7 +274,7 @@ let skeletton
     ul ~a:[a_class ["nav"; "nav-tabs"; "nav-pills"; "nav-stacked"]]
       (List.map menu_li_elt pages)
   and page_title =
-    let base_title = "La Vie Est Un Jeu :: Internal Portal" in
+    let base_title = "Life :: Internal Portal" in
     match page_title with
       | Some str -> base_title ^ " :: " ^ str
       | None    -> base_title
@@ -462,7 +495,7 @@ let _ =
 		] in
         div [h1 [pcdata (get_page_title_anyway issues)];
 	     display_summary o_issues.Github.o_issues;
-	     p [pcdata ("All the tasks in the Internal_tools repository are not"
+	     p [pcdata ("All the tasks in the Business repository are not"
 			^ " code-related. If you are not a developer, go check"
 			^ " them out!")];
 	     div (List.map display_repo o_issues.Github.o_issues)] in
@@ -491,16 +524,17 @@ let _ =
              ("Last push", pcdata repo.Github.pushed_at);
              ("git clone", pre [pcdata repo.Github.git_url]);
             ] in
-          div ~a:[a_class ["well"]]
-            [h1 [pcdata (repo.Github.name)];
-             div (List.map horizontal_element infos);
-             pcdata " ";
-             Tools.external_link repo.Github.url
-               [div ~a:[a_class ["btn"; "btn-success"; "btn-large"]]
-                   [pcdata "» Open repository"]];
-            ] in
+          [div ~a:[a_class ["well"]]
+              [h1 [pcdata (repo.Github.name)];
+               div (List.map horizontal_element infos);
+               pcdata " ";
+               Tools.external_link repo.Github.url
+		 [div ~a:[a_class ["btn"; "btn-success"; "btn-large"]]
+                     [pcdata "» Open repository"]];
+              ];
+	  ] in
 	div [h1 [pcdata (get_page_title_anyway github)];
-             div (List.map display_repo (repos.Github.repos))] in
+             maker 2 (List.map display_repo repos.Github.repos)] in
       skeletton ~page_title:(get_page_title github) ~curr_service:github
 	[match Github.get_repos ~usertype:Github.Organization "LaVieEstUnJeu" with
 	  | Github.Success repos -> display_repos repos
