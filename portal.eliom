@@ -1,5 +1,5 @@
 (* ************************************************************************** *)
-(* Project: La Vie Est Un Jeu - Internal Portal                               *)
+(* Project: Life - Internal Portal                                            *)
 (* Description: Simple portal to have all our organization tools together     *)
 (* Author: db0 (db0company@gmail.com, http://db0.fr/)                         *)
 (* Latest Version is on GitHub: http://goo.gl/nq7mj                           *)
@@ -44,6 +44,8 @@ let nolink = Tools.no_link ()
 
 let pages =
   [(main,          ("Home", "", "home"));
+   (faq,           ("F.A.Q.", "All you need to know when you enter the group",
+		    "life_preserver"));
 
    (nolink,        ("Get things done", "", "stats"));
    (agenda,        ("Calendar", "Weekly meetings, special events", "calendar"));
@@ -57,12 +59,6 @@ let pages =
    (nolink,        ("Code", "", "embed_close"));
    (github,        ("GitHub", "Our repositories", "github"));
    (server,        ("The Server", "We use it to test and code", "cloud"));
-
-   (nolink,        ("Wiki", "", "circle_info"));
-   (documents,     ("Documents", "All the documentation in one place",
-		    "folder_open"));
-   (faq,           ("F.A.Q.", "All you need to know when you enter the group",
-		    "life_preserver"));
 
    (nolink,        ("Epitech", "", "table"));
    (epitech,       ("LabEIP", "Tickets, Grades, Assessment",
@@ -185,7 +181,7 @@ let _ =
       if name = "github"
       then
         Github.connect
-	  ~agent:"LaVieEstUnJeu-Portal"
+	  ~agent:"Life-the-game-Portal"
           (List.assoc "login" list_attrib)
           (List.assoc "password" list_attrib)
       else fail ()
@@ -352,6 +348,20 @@ let _ =
 			      " the mailing list.")]]
             ];
 	  hr ();
+	  h2 [pcdata "First time here?"];
+	  p [pcdata "You might want to take the time to read the ";
+	     a ~service:faq [pcdata "F.A.Q"] ();
+	     pcdata " and meet ";
+	     a ~service:group [pcdata "the team"] ();
+	     pcdata ".";
+	    ];
+	  p [pcdata "If you are a developer, you should also browse ";
+	     a ~service:github [pcdata "our repositories"] ();
+	     pcdata " and use ";
+	     a ~service:server [pcdata "our development server"] ();
+	     pcdata ".";
+	  ];
+	  hr ();
 	  h2 [pcdata "External links"];
 	  div ~a:[a_class ["row-fluid"]]
 	    [
@@ -377,22 +387,6 @@ let _ =
 		   [div ~a:[a_class ["btn"; "btn-success"]]
 		       [pcdata "» Visit the website"]]];
 	    ];
-	  hr ();
-	  h2 [pcdata "First time here?"];
-	  p [pcdata "You might want to take the time to read a few ";
-	     a ~service:documents [pcdata "documents"] ();
-	     pcdata " before starting, read the ";
-	     a ~service:faq [pcdata "F.A.Q"] ();
-	     pcdata " and meet ";
-	     a ~service:group [pcdata "the team"] ();
-	     pcdata ".";
-	    ];
-	  p [pcdata "If you are a developer, you should also browse ";
-	     a ~service:github [pcdata "our repositories"] ();
-	     pcdata " and use ";
-	     a ~service:server [pcdata "our development server"] ();
-	     pcdata ".";
-	  ];
         ])
 
 (* ************************************************************************** *)
@@ -409,6 +403,8 @@ let _ =
       let div_iframe = div [List.assoc default_timezone calendars] in
       skeletton ~page_title:(get_page_title agenda) ~curr_service:agenda
         [h1 [pcdata "Calendar"];
+	 h6 [strong [pcdata "Note:";
+		     pcdata " The whole team meet once a week on Google Hangout"]];
 	 h4 [pcdata "Add it in your own calendar"];
 	 p [pcdata ("It is highly recommended, for your own organization and the"
 		    ^ " cohesion of the team, to use a calendar and to " ^ 
@@ -500,7 +496,7 @@ let _ =
 			^ " them out!")];
 	     div (List.map display_repo o_issues.Github.o_issues)] in
       skeletton ~page_title:(get_page_title issues) ~curr_service:issues
-	[match Github.get_issues_from_organization "LaVieEstUnJeu" with
+	[match Github.get_issues_from_organization "Life-the-game" with
 	  | Github.Success o_issues -> display_o_issues o_issues
 	  | Github.Error e -> display_error e])
 
@@ -536,7 +532,7 @@ let _ =
 	div [h1 [pcdata (get_page_title_anyway github)];
              maker 2 (List.map display_repo repos.Github.repos)] in
       skeletton ~page_title:(get_page_title github) ~curr_service:github
-	[match Github.get_repos ~usertype:Github.Organization "LaVieEstUnJeu" with
+	[match Github.get_repos ~usertype:Github.Organization "Life-the-game" with
 	  | Github.Success repos -> display_repos repos
 	  | Github.Error e -> display_error e])
 
@@ -548,7 +544,7 @@ let _ =
   Example.register ~service:documents
     (fun () () ->
       skeletton ~page_title:(get_page_title documents) ~curr_service:documents
-	[match Github.get_readme "LaVieEstUnJeu" "Doc" with
+	[match Github.get_readme "Life-the-game" "Doc" with
 	   | Github.Success readme ->
 	     (Html5.F.unsafe_data readme : [> Html5_types.b ] Html5.F.elt)
 	   | Github.Error e -> display_error e;
@@ -560,7 +556,7 @@ let _ =
 (* ************************************************************************** *)
 
 let _ =
-  let url = "https://groups.google.com/forum/embed/?place=forum/lavieestunjeu"
+  let url = "https://groups.google.com/forum/embed/?place=forum/lifeplaythegame"
     ^ "&showsearch=true&showpopout=true"
     ^ "&parenturl=http://life.paysdu42.fr/emails" in
   Example.register ~service:emails
@@ -579,7 +575,7 @@ let _ =
         "?key=0Ag8n0yHMUHF-dGRTUXk4bVl3TFVxTXMzdElIWDJxa2c" ^
         "&output=html&widget=true"
       and url_server_thread ="https://groups.google.com/forum/" ^
-        "#!topic/lavieestunjeu/2V8tSOiIETE/discussion" in
+        "#!topic/lifeplaythegame/2V8tSOiIETE/discussion" in
       let infos =
         [("Distribution", [pcdata "Ubuntu Server 12.04 LTS en 64 bits"]);
          ("Hostname", [pcdata "gangbang"]);
