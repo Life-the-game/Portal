@@ -9,7 +9,6 @@
 *.cmxa
 _server
 _client
-*.js
 .depend
 *.type_mli
 tests/*
@@ -21,3 +20,4 @@ gCal.eliom*
 bootstrap
 github.ml*
 portal.conf
+static/portal.js
